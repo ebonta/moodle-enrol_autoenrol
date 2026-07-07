@@ -181,11 +181,11 @@ class enrol_autoenrol_plugin extends enrol_plugin {
     public function try_autoenrol(stdClass $instance) {
         global $USER;
 
-	if (!defined('ENROL_DO_NOT_SEND_EMAIL')) {
+        if (!defined('ENROL_DO_NOT_SEND_EMAIL')) {
             define('ENROL_DO_NOT_SEND_EMAIL', 0);
         }
 
-	// We can not send email from here so not autoenrol if welcome message is enabled.
+        // We can not send email from here so not autoenrol if welcome message is enabled.
         if ($instance->customint7 == ENROL_DO_NOT_SEND_EMAIL) {
             if ($this->user_autoenrol($instance, $USER)) {
                 return 0;
@@ -484,20 +484,21 @@ class enrol_autoenrol_plugin extends enrol_plugin {
     public function sync_enrolments(progress_trace $trace, $course) {
         global $DB;
 
-        // We may need a lot of memory here.
+        // We may need a lot of time here.
         core_php_time_limit::raise();
-        raise_memory_limit(MEMORY_HUGE);
+
+        $userscount = $DB->count_records('user', ['deleted' => '0']);
+
+        $trace->output(get_string('checksync', 'enrol_autoenrol', $userscount));
 
         // Get records of all active users.
-        $users = $DB->get_records('user', ['deleted' => '0'], null, '*');
-
-        $trace->output(get_string('checksync', 'enrol_autoenrol', count($users)));
-        foreach ($users as $user) {
-            if (!is_siteadmin($user) && (!isguestuser($user))) {
+        $rs = $DB->get_recordset('user', ['deleted' => 0]);
+        foreach ($rs as $user) {
+            if (!is_siteadmin($user) && !isguestuser($user)) {
                 $this->sync_user_enrolments($user, false, $course);
             }
         }
-
+        $rs->close();
     }
 
     /**
