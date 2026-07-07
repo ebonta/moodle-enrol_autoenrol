@@ -445,10 +445,6 @@ class enrol_autoenrol_plugin extends enrol_plugin {
                             }
                         }
                         if ($unenrolaction == ENROL_EXT_REMOVED_SUSPENDNOROLES) {
-                            if (!empty($roleassigns[$instance->courseid])) {
-                                // We want this "other user" to keep their roles.
-                                continue;
-                            }
                             role_unassign_all([
                                     'contextid' => $context->id,
                                     'userid' => $user->id,
