@@ -388,7 +388,7 @@ class enrol_autoenrol_plugin extends enrol_plugin {
      * @return void
      */
     public function sync_user_enrolments($user, $onlogin=true, $course = null) {
-        global $DB, $PAGE;
+        global $DB;
 
         $instances = [];
         if (!empty($course)) {
@@ -411,7 +411,6 @@ class enrol_autoenrol_plugin extends enrol_plugin {
 
             if (!$found && (($this->get_config('loginenrol') && ($instance->customint1 == 1)) || !$onlogin)) {
                 // If user is not enrolled and this instance enrol on login or called with sync task, try to enrol.
-                $PAGE->set_context(context_course::instance($instance->courseid));
                 if ($this->user_autoenrol($instance, $user)) {
                     if ($onlogin) {
                         // Purge the associated caches for the current user only.
