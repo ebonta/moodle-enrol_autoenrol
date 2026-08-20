@@ -34,7 +34,6 @@ function xmldb_enrol_autoenrol_upgrade($oldversion) {
     global $DB;
 
     if ($oldversion < 2014113000) {
-
         $filtertype = [get_string('g_none', 'enrol_autoenrol'),
             get_string('g_auth', 'enrol_autoenrol'),
             get_string('g_dept', 'enrol_autoenrol'),
@@ -83,7 +82,6 @@ function xmldb_enrol_autoenrol_upgrade($oldversion) {
     }
 
     if ($oldversion < 2016122000) {
-
         $fields = [];
         $fields[] = '-';
         $fields[] = 'auth';
@@ -145,7 +143,7 @@ function xmldb_enrol_autoenrol_upgrade($oldversion) {
                         $operator = 'contains';
                     }
                     $instance->customtext2 = '{"op":"|","c":[{"type":"profile","' . $fieldtype . '":"' . $oldfield .
-                                             '","op":"' . $operator . '","v":"'. $oldmatchvalue .'"}],"show":true}';
+                                             '","op":"' . $operator . '","v":"' . $oldmatchvalue . '"}],"show":true}';
                     $instance->customint4 = 0;
                 }
             }
@@ -185,7 +183,7 @@ function xmldb_enrol_autoenrol_upgrade($oldversion) {
             $groups = $DB->get_records_select('groups', 'idnumber LIKE \'autoenrol|' . $instance->id . '|%\'');
             foreach ($groups as $group) {
                 $hash = md5($group->name);
-                $newidnumber = 'autoenrol|' . $instance->id . '|' .$hash;
+                $newidnumber = 'autoenrol|' . $instance->id . '|' . $hash;
                 $DB->set_field('groups', 'idnumber', $newidnumber, ['id' => $group->id]);
             }
         }
@@ -233,7 +231,7 @@ function xmldb_enrol_autoenrol_upgrade($oldversion) {
                 $DB->update_record('enrol', $instance);
                 if ($enrolments = $DB->get_records('user_enrolments', ['enrolid' => $instance->id])) {
                     foreach ($enrolments as $enrolment) {
-                        role_assign($roleid, $enrolment->userid, $context->id, 'enrol_'.$instance->enrol, $instance->id);
+                        role_assign($roleid, $enrolment->userid, $context->id, 'enrol_' . $instance->enrol, $instance->id);
                     }
                 }
             }
@@ -286,6 +284,10 @@ function xmldb_enrol_autoenrol_upgrade($oldversion) {
 
     if ($oldversion < 2025041500) {
         upgrade_plugin_savepoint(true, 2025041500, 'enrol', 'autoenrol');
+    }
+
+    if ($oldversion < 2026070700) {
+        upgrade_plugin_savepoint(true, 2026070700, 'enrol', 'autoenrol');
     }
 
     return true;

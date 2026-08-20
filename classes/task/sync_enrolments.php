@@ -30,7 +30,6 @@ namespace enrol_autoenrol\task;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sync_enrolments extends \core\task\scheduled_task {
-
     /**
      * Name for this task.
      *
@@ -62,5 +61,4 @@ class sync_enrolments extends \core\task\scheduled_task {
         // Update enrolments.
         $enrol->sync_enrolments($trace, $course);
     }
-
 }

@@ -32,7 +32,6 @@ namespace enrol_autoenrol\task;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sync_expirations extends \core\task\scheduled_task {
-
     /**
      * Name for this task.
      *
@@ -50,5 +49,4 @@ class sync_expirations extends \core\task\scheduled_task {
         $trace = new \text_progress_trace();
         $enrol->sync_expirations($trace);
     }
-
 }

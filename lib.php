@@ -36,7 +36,6 @@ use enrol_autoenrol\enrol_form;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_autoenrol_plugin extends enrol_plugin {
-
     /**
      * Database fields mapping
      *
@@ -337,18 +336,20 @@ class enrol_autoenrol_plugin extends enrol_plugin {
         if ($this->allow_manage($instance) && has_capability("enrol/{$instance->enrol}:manage", $context)) {
             $url = new moodle_url('/enrol/editenrolment.php', $params);
             $actions[] = new user_enrolment_action(
-                    new pix_icon('t/edit', ''), get_string('editenrolment', 'enrol'), $url,
-                    [
-                      'class' => 'editenrollink',
-                      'rel' => $ue->id,
-                      'data-action' => ENROL_ACTION_EDIT,
-                    ]);
+                new pix_icon('t/edit', ''),
+                get_string('editenrolment', 'enrol'),
+                $url,
+                ['class' => 'editenrollink', 'rel' => $ue->id, 'data-action' => ENROL_ACTION_EDIT]
+            );
         }
         if ($this->allow_unenrol_user($instance, $ue) && has_capability('enrol/autoenrol:unenrol', $context)) {
             $url = new moodle_url('/enrol/unenroluser.php', $params);
             $actions[] = new user_enrolment_action(
-                    new pix_icon('t/delete', ''), get_string('unenrol', 'enrol'), $url,
-                    ['class' => 'unenrollink', 'rel' => $ue->id]);
+                new pix_icon('t/delete', ''),
+                get_string('unenrol', 'enrol'),
+                $url,
+                ['class' => 'unenrollink', 'rel' => $ue->id]
+            );
         }
         return $actions;
     }
@@ -370,7 +371,7 @@ class enrol_autoenrol_plugin extends enrol_plugin {
                 $role = '';
             }
             $enrol = $this->get_name();
-            return get_string('pluginname', 'enrol_'.$enrol) . $role;
+            return get_string('pluginname', 'enrol_' . $enrol) . $role;
         } else {
             return format_string($instance->name);
         }
@@ -387,7 +388,7 @@ class enrol_autoenrol_plugin extends enrol_plugin {
      *
      * @return void
      */
-    public function sync_user_enrolments($user, $onlogin=true, $course = null) {
+    public function sync_user_enrolments($user, $onlogin = true, $course = null) {
         global $DB, $PAGE;
 
         $instances = [];
@@ -434,7 +435,6 @@ class enrol_autoenrol_plugin extends enrol_plugin {
                     }
                     if ($unenrolaction == ENROL_EXT_REMOVED_UNENROL) {
                         $this->unenrol_user($instance, $user->id);
-
                     } else if ($unenrolaction == ENROL_EXT_REMOVED_SUSPEND || $unenrolaction == ENROL_EXT_REMOVED_SUSPENDNOROLES) {
                         // Suspend users.
                         foreach ($userenrolments as $userenrolment) {
@@ -469,7 +469,6 @@ class enrol_autoenrol_plugin extends enrol_plugin {
                     $this->process_group($instance, $user);
                 }
             }
-
         }
     }
 
@@ -696,7 +695,7 @@ class enrol_autoenrol_plugin extends enrol_plugin {
 
         // Just restore every role.
         if ($DB->record_exists('user_enrolments', ['enrolid' => $instance->id, 'userid' => $userid])) {
-            role_assign($roleid, $userid, $contextid, 'enrol_'.$instance->enrol, $instance->id);
+            role_assign($roleid, $userid, $contextid, 'enrol_' . $instance->enrol, $instance->id);
         }
     }
 
@@ -750,9 +749,11 @@ class enrol_autoenrol_plugin extends enrol_plugin {
         if ($this->get_config('removegroups')) {
             require_once($CFG->dirroot . '/group/lib.php');
 
-            $groups = $DB->get_records_sql('SELECT * FROM {groups} WHERE courseid = :courseid AND ' .
-                    $DB->sql_like('idnumber', ':idnumber'),
-                    ['idnumber' => 'autoenrol|' . $instance->id . '|%', 'courseid' => $instance->courseid]);
+            $groups = $DB->get_records_sql(
+                'SELECT * FROM {groups} WHERE courseid = :courseid AND ' .
+                $DB->sql_like('idnumber', ':idnumber'),
+                ['idnumber' => 'autoenrol|' . $instance->id . '|%', 'courseid' => $instance->courseid]
+            );
 
             foreach ($groups as $group) {
                 groups_delete_group($group);
@@ -869,7 +870,7 @@ class enrol_autoenrol_plugin extends enrol_plugin {
                 if (in_array($profileattribute, $standardfields)) {
                     $name = $user->$profileattribute;
                 } else {
-                    require_once($CFG->dirroot.'/user/profile/lib.php');
+                    require_once($CFG->dirroot . '/user/profile/lib.php');
                     $userdata = profile_user_record($user->id);
                     if (!empty($userdata) && isset($userdata->$profileattribute)) {
                         $name = $userdata->$profileattribute;
@@ -889,7 +890,7 @@ class enrol_autoenrol_plugin extends enrol_plugin {
             if (!empty($usergroups)) {
                 foreach ($usergroups as $usergroupid => $usergroup) {
                     // Check if each group with this user as member was created by Autoenrol.
-                    if (strpos($usergroup->idnumber, 'autoenrol|'.$instance->id.'|') === false) {
+                    if (strpos($usergroup->idnumber, 'autoenrol|' . $instance->id . '|') === false) {
                         unset($usergroups[$usergroupid]);
                     }
                     // ATTENTION!! - We can't remove user membership from groups not created by Autoenrol.
@@ -927,7 +928,7 @@ class enrol_autoenrol_plugin extends enrol_plugin {
 
         // Try to get group from idnumber.
         $hash = md5($groupname);
-        $idnumber = 'autoenrol|' . $instance->id . '|' .$hash;
+        $idnumber = 'autoenrol|' . $instance->id . '|' . $hash;
 
         $group = $DB->get_record('groups', ['idnumber' => $idnumber, 'courseid' => $instance->courseid]);
 
@@ -979,8 +980,11 @@ class enrol_autoenrol_plugin extends enrol_plugin {
                 $messagehtml = text_to_html($messagetext, null, false, true);
             } else {
                 // This is most probably the tag/newline soup known as FORMAT_MOODLE.
-                $messagehtml = format_text($message, FORMAT_MOODLE,
-                    ['context' => $context, 'para' => false, 'newlines' => true, 'filter' => false]);
+                $messagehtml = format_text(
+                    $message,
+                    FORMAT_MOODLE,
+                    ['context' => $context, 'para' => false, 'newlines' => true, 'filter' => false]
+                );
                 $messagetext = html_to_text($messagehtml);
             }
         } else {
@@ -988,8 +992,8 @@ class enrol_autoenrol_plugin extends enrol_plugin {
             $messagehtml = text_to_html($messagetext, null, false, true);
         }
 
-        $subject = get_string('welcometocourse', 'enrol_autoenrol',
-            format_string($course->fullname, true, ['context' => $context]));
+        $coursefullname = format_string($course->fullname, true, ['context' => $context]);
+        $subject = get_string('welcometocourse', 'enrol_autoenrol', $coursefullname);
 
         $sendoption = $instance->customint7;
         $contact = $this->get_welcome_email_contact($sendoption, $context);
@@ -1021,12 +1025,23 @@ class enrol_autoenrol_plugin extends enrol_plugin {
             $rusers = [];
             if (!empty($CFG->coursecontact)) {
                 $croles = explode(',', $CFG->coursecontact);
-                list($sort, $sortparams) = users_order_by_sql('u');
+                [$sort, $sortparams] = users_order_by_sql('u');
                 // We only use the first user.
                 $i = 0;
                 do {
-                    $rusers = get_role_users($croles[$i], $context, true, '',
-                        'r.sortorder ASC, ' . $sort, null, '', '', '', '', $sortparams);
+                    $rusers = get_role_users(
+                        $croles[$i],
+                        $context,
+                        true,
+                        '',
+                        'r.sortorder ASC, ' . $sort,
+                        null,
+                        '',
+                        '',
+                        '',
+                        '',
+                        $sortparams
+                    );
                     $i++;
                 } while (empty($rusers) && !empty($croles[$i]));
             }
@@ -1076,20 +1091,16 @@ class enrol_autoenrol_plugin extends enrol_plugin {
             $logourl = $OUTPUT->pix_url('logo', 'enrol_autoenrol');
         }
 
-        $img = html_writer::empty_tag(
-                'img',
-                [
-                        'src'   => $logourl,
-                        'alt'   => 'AutoEnrol Logo',
-                        'title' => 'AutoEnrol Logo',
-                ]
-        );
+        $img = html_writer::empty_tag('img', ['src'   => $logourl, 'alt'   => 'AutoEnrol Logo', 'title' => 'AutoEnrol Logo']);
         $img = html_writer::div($img, null, ['style' => 'text-align:center;margin: 1em 0;']);
 
         $mform->addElement('html', $img);
         $mform->addElement(
-                'static', 'description', html_writer::tag('strong', get_string('warning', 'enrol_autoenrol')),
-                get_string('warning_message', 'enrol_autoenrol'));
+            'static',
+            'description',
+            html_writer::tag('strong', get_string('warning', 'enrol_autoenrol')),
+            get_string('warning_message', 'enrol_autoenrol')
+        );
 
         $mform->addElement('header', 'generalsection', get_string('general'));
         $mform->setExpanded('generalsection');
@@ -1185,16 +1196,19 @@ class enrol_autoenrol_plugin extends enrol_plugin {
         if (function_exists('enrol_send_welcome_email_options')) {
             $options = enrol_send_welcome_email_options();
             unset($options[ENROL_SEND_EMAIL_FROM_KEY_HOLDER]);
-            $mform->addElement('select', 'customint7',
-                    get_string('sendcoursewelcomemessage', 'enrol_autoenrol'), $options);
+            $mform->addElement('select', 'customint7', get_string('sendcoursewelcomemessage', 'enrol_autoenrol'), $options);
         } else {
             $mform->addElement('checkbox', 'customint7', get_string('sendcoursewelcomemessage', 'enrol_autoenrol'));
         }
         $mform->setDefault('customint7', $this->get_config('sendcoursewelcomemessage'));
 
         // Welcome message text.
-        $mform->addElement('textarea', 'customtext1',
-                get_string('customwelcomemessage', 'enrol_autoenrol'), ['cols' => '60', 'rows' => '8']);
+        $mform->addElement(
+            'textarea',
+            'customtext1',
+            get_string('customwelcomemessage', 'enrol_autoenrol'),
+            ['cols' => '60', 'rows' => '8']
+        );
         $mform->addHelpButton('customtext1', 'customwelcomemessage', 'enrol_autoenrol');
 
         // Filter section.
@@ -1202,8 +1216,7 @@ class enrol_autoenrol_plugin extends enrol_plugin {
         $mform->setExpanded('filtersection', true);
 
         // The filter definition.
-        $mform->addElement('textarea', 'availabilityconditionsjson',
-                get_string('userfilter', 'enrol_autoenrol'));
+        $mform->addElement('textarea', 'availabilityconditionsjson', get_string('userfilter', 'enrol_autoenrol'));
         $mform->addHelpButton('availabilityconditionsjson', 'userfilter', 'enrol_autoenrol');
         \enrol_autoenrol\filter_frontend::include_all_javascript($COURSE);
 
@@ -1472,5 +1485,4 @@ class enrol_autoenrol_plugin extends enrol_plugin {
 
         return parent::update_instance($instance, $data);
     }
-
 }

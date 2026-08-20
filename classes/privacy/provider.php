@@ -37,14 +37,14 @@ use core_privacy\local\request\userlist;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
-        // This plugin stores user data.
-        \core_privacy\local\metadata\provider,
+    // This plugin stores user data.
+    \core_privacy\local\metadata\provider,
 
-        // This plugin contains user's enrolments.
-        \core_privacy\local\request\plugin\provider,
+    // This plugin is capable of determining which users have data within it.
+    \core_privacy\local\request\core_userlist_provider,
 
-        // This plugin is capable of determining which users have data within it.
-        \core_privacy\local\request\core_userlist_provider {
+    // This plugin contains user's enrolments.
+    \core_privacy\local\request\plugin\provider {
     /**
      * Returns meta data about this system.
      *
@@ -153,5 +153,4 @@ class provider implements
     public static function delete_data_for_users(approved_userlist $userlist) {
         \core_group\privacy\provider::delete_groups_for_users($userlist, 'enrol_autoenrol');
     }
-
 }

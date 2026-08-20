@@ -24,19 +24,19 @@
 
 define('CLI_SCRIPT', true);
 
-require(__DIR__.'/../../../config.php');
+require(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/clilib.php');
 
 // Now get cli options.
-list($options, $unrecognized) = cli_get_params(
-        [
-                'help' => false,
-                'slow' => false,
-        ],
-        [
-                'h' => 'help',
-                's' => 'slow',
-        ]
+[$options, $unrecognized] = cli_get_params(
+    [
+        'help' => false,
+        'slow' => false,
+    ],
+    [
+        'h' => 'help',
+        's' => 'slow',
+    ]
 );
 
 if ($unrecognized) {
@@ -77,12 +77,12 @@ if (!empty($instances)) {
             foreach ($enrolments as $enrolment) {
                 if ($options['slow']) {
                     if ($DB->record_exists('user', ['id' => $enrolment->userid, 'deleted' => 0])) {
-                        role_assign($roleid, $enrolment->userid, $context->id, 'enrol_'.$instance->enrol, $instance->id);
+                        role_assign($roleid, $enrolment->userid, $context->id, 'enrol_' . $instance->enrol, $instance->id);
                         $count++;
                     }
                 } else {
                     if (!empty($enrolment->userid)) {
-                        role_assign($roleid, $enrolment->userid, $context->id, 'enrol_'.$instance->enrol, $instance->id);
+                        role_assign($roleid, $enrolment->userid, $context->id, 'enrol_' . $instance->enrol, $instance->id);
                         $count++;
                     }
                 }

@@ -30,7 +30,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_autoenrol_editselectedusers_operation extends enrol_bulk_enrolment_operation {
-
     /**
      * Returns the title to display for this bulk operation.
      *
@@ -86,7 +85,7 @@ class enrol_autoenrol_editselectedusers_operation extends enrol_bulk_enrolment_o
         $timestart = $properties->timestart;
         $timeend = $properties->timeend;
 
-        list($ueidsql, $params) = $DB->get_in_or_equal($ueids, SQL_PARAMS_NAMED);
+        [$ueidsql, $params] = $DB->get_in_or_equal($ueids, SQL_PARAMS_NAMED);
 
         $updatesql = [];
         if ($status == ENROL_USER_ACTIVE || $status == ENROL_USER_SUSPENDED) {

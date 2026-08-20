@@ -57,7 +57,7 @@ class enrol_form extends moodleform {
      * @return string form identifier
      */
     protected function get_form_identifier() {
-        $formid = $this->_customdata->id.'_'.get_class($this);
+        $formid = $this->_customdata->id . '_' . get_class($this);
         return $formid;
     }
 

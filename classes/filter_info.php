@@ -32,7 +32,6 @@ namespace enrol_autoenrol;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class filter_info extends \core_availability\info {
-
     /**
      * Autoenrol instance that use filter
      *
@@ -98,5 +97,4 @@ class filter_info extends \core_availability\info {
     public function get_context() {
         return \context_course::instance($this->course->id);
     }
-
 }
