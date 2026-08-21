@@ -389,7 +389,7 @@ class enrol_autoenrol_plugin extends enrol_plugin {
      * @return void
      */
     public function sync_user_enrolments($user, $onlogin = true, $course = null) {
-        global $DB, $PAGE;
+        global $DB;
 
         $instances = [];
         if (!empty($course)) {
@@ -412,7 +412,6 @@ class enrol_autoenrol_plugin extends enrol_plugin {
 
             if (!$found && (($this->get_config('loginenrol') && ($instance->customint1 == 1)) || !$onlogin)) {
                 // If user is not enrolled and this instance enrol on login or called with sync task, try to enrol.
-                $PAGE->set_context(context_course::instance($instance->courseid));
                 if ($this->user_autoenrol($instance, $user)) {
                     if ($onlogin) {
                         // Purge the associated caches for the current user only.
@@ -952,7 +951,7 @@ class enrol_autoenrol_plugin extends enrol_plugin {
     }
 
     /**
-     * Send welcome email to specified user.
+     * Send welcome message to specified user.
      *
      * @param stdClass $instance
      * @param stdClass $user user record
@@ -963,11 +962,12 @@ class enrol_autoenrol_plugin extends enrol_plugin {
 
         $course = $DB->get_record('course', ['id' => $instance->courseid], '*', MUST_EXIST);
         $context = context_course::instance($course->id);
+        $courseurl = course_get_url($course)->out(false);
 
         $a = new stdClass();
         $a->coursename = format_string($course->fullname, true, ['context' => $context]);
         $a->profileurl = new moodle_url('/user/view.php', ['id' => $user->id, 'course' => $course->id]);
-        $a->link = course_get_url($course)->out();
+        $a->link = $courseurl;
 
         if (trim($instance->customtext1) !== '') {
             $message = $instance->customtext1;
@@ -994,12 +994,41 @@ class enrol_autoenrol_plugin extends enrol_plugin {
 
         $coursefullname = format_string($course->fullname, true, ['context' => $context]);
         $subject = get_string('welcometocourse', 'enrol_autoenrol', $coursefullname);
+        $subject = $this->normalise_welcome_message_subject($subject);
 
         $sendoption = $instance->customint7;
-        $contact = $this->get_welcome_email_contact($sendoption, $context);
+        $sender = $this->get_welcome_email_contact($sendoption, $context);
 
-        // Directly emailing welcome message rather than using messaging.
-        email_to_user($user, $contact, $subject, $messagetext, $messagehtml);
+        $message = new \core\message\message();
+        $message->courseid = $course->id;
+        $message->component = 'enrol_autoenrol';
+        $message->name = 'course_welcome';
+        $message->userfrom = $sender;
+        $message->userto = $user;
+        $message->subject = $subject;
+        $message->fullmessage = $messagetext;
+        $message->fullmessageformat = FORMAT_PLAIN;
+        $message->fullmessagehtml = $messagehtml;
+        $message->smallmessage = $subject;
+        $message->notification = 1;
+        $message->contexturl = $courseurl;
+        $message->contexturlname = $a->coursename;
+
+        message_send($message);
+    }
+
+    /**
+     * Normalise the subject used for welcome notifications.
+     *
+     * @param string $subject
+     * @return string
+     */
+    protected function normalise_welcome_message_subject(string $subject): string {
+        $subject = strip_tags($subject);
+        $subject = html_entity_decode($subject, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $subject = preg_replace('/\s+/u', ' ', trim($subject));
+
+        return $subject;
     }
 
     /**
